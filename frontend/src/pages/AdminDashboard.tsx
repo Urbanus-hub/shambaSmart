@@ -50,7 +50,9 @@ export function AdminDashboard() {
             </h2>
           </div>
           <div className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-emerald-700">
-            {atRiskCount > 0 ? `${atRiskCount} fields at risk` : "All fields on track"}
+            {atRiskCount > 0
+              ? `${atRiskCount} fields at risk`
+              : "All fields on track"}
           </div>
         </div>
         <div className="mt-6 grid gap-4 md:grid-cols-4">

@@ -10,9 +10,7 @@ export function Navbar() {
           <p className="text-[11px] uppercase tracking-[0.3em] text-emerald-700">
             SmartSeason Field Monitoring
           </p>
-          <h1 className="font-display text-2xl text-slate-900">
-            ShambaSmart
-          </h1>
+          <h1 className="font-display text-2xl text-slate-900">ShambaSmart</h1>
         </div>
         <div className="flex items-center gap-4">
           {user && (

@@ -7,7 +7,9 @@ export function AgentDashboard() {
   const [fields, setFields] = useState<Field[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const atRiskCount = fields.filter((field) => field.status === "At Risk").length;
+  const atRiskCount = fields.filter(
+    (field) => field.status === "At Risk",
+  ).length;
 
   useEffect(() => {
     const load = async () => {

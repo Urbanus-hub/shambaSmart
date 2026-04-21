@@ -60,9 +60,7 @@ export function FieldDetailPage() {
               <p className="text-[11px] uppercase tracking-[0.3em] text-slate-400">
                 Stage
               </p>
-              <p className="mt-2 font-semibold text-slate-900">
-                {field.stage}
-              </p>
+              <p className="mt-2 font-semibold text-slate-900">{field.stage}</p>
             </div>
             <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
               <p className="text-[11px] uppercase tracking-[0.3em] text-slate-400">

@@ -21,7 +21,9 @@ export function FieldCard({ field }: { field: Field }) {
       <div className="mt-4 grid gap-2 text-xs text-slate-500 md:grid-cols-2">
         <div className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2">
           <span className="uppercase tracking-widest text-[10px]">Planted</span>
-          <span className="font-semibold text-slate-700">{field.planting_date}</span>
+          <span className="font-semibold text-slate-700">
+            {field.planting_date}
+          </span>
         </div>
         <div className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2">
           <span className="uppercase tracking-widest text-[10px]">Stage</span>
