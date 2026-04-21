@@ -3,6 +3,8 @@ import pool from "../db/pool";
 import type { Field, UserRole } from "../types/models";
 import { getFieldStatus } from "./statusService";
 
+type FieldRow = Field & { last_update_at: string | null };
+
 export async function createField(data: Omit<Field, "id">) {
   const id = uuid();
   const result = await pool.query(
@@ -52,7 +54,7 @@ export async function getFieldsForUser(userId: string, role: UserRole) {
 
   if (role === "ADMIN") {
     const result = await pool.query(baseQuery + groupBy);
-    return result.rows.map((row) => ({
+    return result.rows.map((row: FieldRow) => ({
       ...row,
       status: getFieldStatus(
         row.stage,
@@ -65,7 +67,7 @@ export async function getFieldsForUser(userId: string, role: UserRole) {
     baseQuery + " WHERE f.assigned_agent_id = $1" + groupBy,
     [userId],
   );
-  return result.rows.map((row) => ({
+  return result.rows.map((row: FieldRow) => ({
     ...row,
     status: getFieldStatus(
       row.stage,
