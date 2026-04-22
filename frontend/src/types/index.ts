@@ -18,6 +18,7 @@ export interface Field {
   stage: FieldStage;
   assigned_agent_id: string | null;
   status?: FieldStatus;
+  image_url?: string;
 }
 
 export interface FieldUpdate {

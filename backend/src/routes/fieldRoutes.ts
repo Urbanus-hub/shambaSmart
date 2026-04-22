@@ -11,6 +11,6 @@ router.get("/", authMiddleware, list);
 //get single field details
 router.get("/:id", authMiddleware, detail);
 //update a field
-router.put("/:id", authMiddleware, roleMiddleware("ADMIN"), update);
+router.patch("/:id", authMiddleware, roleMiddleware("ADMIN"), update);
 
 export default router;

@@ -1,5 +1,4 @@
-import { Outlet } from "react-router-dom";
-import { Navbar } from "../components/Navbar";
+import { Outlet, Navigate } from "react-router-dom";
 import { Sidebar } from "../components/Sidebar";
 import { useAuth } from "../hooks/useAuth";
 
@@ -7,18 +6,17 @@ export function DashboardLayout() {
   const { user } = useAuth();
 
   if (!user) {
-    return null;
+    return <Navigate to="/login" replace />;
   }
 
   return (
-    <div className="min-h-screen bg-stone-50">
-      <Navbar />
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-6 py-6 md:flex-row">
-        <Sidebar role={user.role} />
-        <main className="flex-1">
+    <div className="flex h-screen bg-[#f0f9f4] overflow-hidden">
+      <Sidebar role={user.role} user={user} />
+      <main className="flex-1 overflow-y-auto">
+        <div className="mx-auto max-w-[1400px] px-6 py-10 md:px-10">
           <Outlet />
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }

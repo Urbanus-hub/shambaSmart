@@ -20,6 +20,16 @@ export async function createField(data: Omit<Field, "id">) {
   );
   return result.rows[0];
 }
+export async function deleteField(id:string) {
+ 
+  const result = await pool.query(
+    "",
+    [
+      
+    ],
+  );
+  return result.rows[0];
+}
 
 export async function updateField(id: string, payload: Partial<Field>) {
   const result = await pool.query(

@@ -3,31 +3,46 @@ import { StatusBadge } from "./StatusBadge";
 import { Link } from "react-router-dom";
 
 export function FieldCard({ field }: { field: Field }) {
+  // If no mock image provided, fall back to a subtle farm pattern
+  const hasImage = !!field.image_url;
+
   return (
     <Link
       to={`/fields/${field.id}`}
-      className="group rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-emerald-200 hover:shadow-lg"
+      className="group flex flex-col rounded-3xl border border-slate-200 bg-white p-2 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#c2ecd6] hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-[#e0f6e9]"
     >
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <p className="text-[11px] uppercase tracking-[0.3em] text-slate-400">
-            Field
-          </p>
-          <h3 className="font-display text-xl text-slate-900">{field.name}</h3>
+      <div className={`relative h-40 w-full overflow-hidden rounded-2xl ${hasImage ? 'bg-slate-100' : 'bg-[#1e5545]'}`}>
+        {hasImage ? (
+          <img 
+            src={field.image_url} 
+            alt={`Field ${field.name}`} 
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+        ) : (
+          <div className="absolute inset-0 opacity-20" style={{
+            backgroundImage: "radial-gradient(#36a783 1px, transparent 1px)",
+            backgroundSize: "20px 20px"
+          }}></div>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+        <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between">
+          <h3 className="font-display text-xl text-white drop-shadow-md truncate">{field.name}</h3>
+          {field.status && <StatusBadge status={field.status} />}
         </div>
-        {field.status && <StatusBadge status={field.status} />}
       </div>
-      <p className="mt-2 text-sm text-slate-600">{field.crop_type}</p>
-      <div className="mt-4 grid gap-2 text-xs text-slate-500 md:grid-cols-2">
-        <div className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2">
-          <span className="uppercase tracking-widest text-[10px]">Planted</span>
-          <span className="font-semibold text-slate-700">
-            {field.planting_date}
-          </span>
-        </div>
-        <div className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2">
-          <span className="uppercase tracking-widest text-[10px]">Stage</span>
-          <span className="font-semibold text-slate-700">{field.stage}</span>
+
+      <div className="p-4">
+        <p className="text-sm font-medium text-slate-700 mb-4">{field.crop_type}</p>
+        
+        <div className="grid gap-3 text-xs text-slate-500 md:grid-cols-2">
+          <div className="flex flex-col gap-1 rounded-xl border border-slate-100 bg-slate-50 p-2.5 transition-colors group-hover:bg-[#f2fbf5]">
+            <span className="uppercase tracking-widest text-[9px] font-bold text-slate-400 group-hover:text-[#36a783]">Planted</span>
+            <span className="font-bold text-slate-900 group-hover:text-[#1e5545]">{field.planting_date}</span>
+          </div>
+          <div className="flex flex-col gap-1 rounded-xl border border-slate-100 bg-slate-50 p-2.5 transition-colors group-hover:bg-[#f2fbf5]">
+            <span className="uppercase tracking-widest text-[9px] font-bold text-slate-400 group-hover:text-[#36a783]">Stage</span>
+            <span className="font-bold text-slate-900 group-hover:text-[#1e5545]">{field.stage}</span>
+          </div>
         </div>
       </div>
     </Link>

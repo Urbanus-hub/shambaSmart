@@ -23,8 +23,12 @@ export async function create(req: Request, res: Response) {
       assigned_agent_id: assigned_agent_id || null,
     });
 
-    return res.status(201).json(field);
+    return res.status(201).json({
+      message: "Created successfully",
+      data: field,
+    });
   } catch (error) {
+    console.log("error creating field", error);
     return res.status(500).json({ message: "Unable to create field" });
   }
 }
@@ -62,6 +66,19 @@ export async function update(req: Request, res: Response) {
     if (!field) {
       return res.status(404).json({ message: "Field not found" });
     }
+
+    return res.json(field);
+  } catch (error) {
+    return res.status(500).json({ message: "Unable to update field" });
+  }
+}
+export async function deleteField(req: Request, res: Response) {
+  try {
+    const fielid = req.params.id;
+    if (!fielid) {
+      return res.status(404).json({ message: "Field not found" });
+    }
+    const results = await pool.query("");
 
     return res.json(field);
   } catch (error) {
