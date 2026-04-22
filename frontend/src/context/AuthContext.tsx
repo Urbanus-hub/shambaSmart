@@ -43,13 +43,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     let result;
     if (email === "admin@shamba.io" && password === "password123") {
-      result = { user: { id: "mock-admin", name: "Admin Demo", email, role: "ADMIN" as const }, token: "mock-token" };
+      result = {
+        user: {
+          id: "mock-admin",
+          name: "Admin Demo",
+          email,
+          role: "ADMIN" as const,
+        },
+        token: "mock-token",
+      };
     } else if (email === "agent@shamba.io" && password === "password123") {
-      result = { user: { id: "mock-agent", name: "Agent Demo", email, role: "AGENT" as const }, token: "mock-token" };
+      result = {
+        user: {
+          id: "mock-agent",
+          name: "Agent Demo",
+          email,
+          role: "AGENT" as const,
+        },
+        token: "mock-token",
+      };
     } else {
       result = await authService.login(email, password);
     }
-    
+
     setUser(result.user);
     setToken(result.token);
     localStorage.setItem("auth_token", result.token);
