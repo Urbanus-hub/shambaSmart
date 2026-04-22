@@ -1,5 +1,6 @@
-import { Pool } from "pg";
+import pkg from "pg";
 import dotenv from "dotenv";
+const { Pool } = pkg;
 
 dotenv.config();
 
@@ -9,6 +10,12 @@ const pool = new Pool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+});
+
+// check db connection
+
+pool.on("connect", () => {
+  console.log("Connection established");
 });
 
 export default pool;

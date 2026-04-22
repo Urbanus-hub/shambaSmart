@@ -10,6 +10,7 @@ export async function registerUser(
   password: string,
   role: "ADMIN" | "AGENT",
 ) {
+  console.log("pool:",pool);
   const existing = await pool.query("SELECT id FROM users WHERE email = $1", [
     email,
   ]);
@@ -20,11 +21,11 @@ export async function registerUser(
   const passwordHash = await hashPassword(password);
   const id = uuid();
 
-  await pool.query(
+  const results = await pool.query(
     "INSERT INTO users (id, name, email, password, role) VALUES ($1, $2, $3, $4, $5)",
     [id, name, email, passwordHash, role],
   );
-
+console.log("register",results)
   const token = signToken(id, role);
 
   const user: User = { id, name, email, role };

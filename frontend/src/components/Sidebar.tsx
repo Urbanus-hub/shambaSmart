@@ -10,7 +10,7 @@ export function Sidebar({ role }: SidebarProps) {
     role === "ADMIN"
       ? [
           { to: "/admin/dashboard", label: "Admin overview" },
-          { to: "/fields/overview", label: "Field registry", disabled: true },
+          { to: "/fields/overview", label: "Field registry", disabled: false },
         ]
       : [
           { to: "/agent/dashboard", label: "Assigned fields" },
