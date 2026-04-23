@@ -1,125 +1,128 @@
-# ShambaSmart (SmartSeason) Field Monitoring System
+# 🌱 ShambaSmart (SmartSeason)
 
-A production-ready SaaS dashboard designed to streamline agricultural coordination by tracking crop lifecycles, agent assignments, and field health in real-time.
+**Agricultural Field Monitoring System**
 
----
+ShambaSmart is a simple yet powerful platform designed to help agricultural teams track crop progress and field health. It connects coordinators in the office with agents on the ground to ensure every field gets the attention it needs.
 
-## 🚀 Overview
-
-ShambaSmart (SmartSeason) addresses the complexity of managing distributed agricultural operations. It provides a centralized platform where **Coordinators (Admins)** can visualize their entire field inventory and **Field Agents** can report ground-truth data. The system bridges the gap between the office and the field through a unified data flow and intelligent status monitoring.
-
-## 🛠️ Tech Stack
-
-- **Frontend**: 
-  - **React 19 (TypeScript)** for a type-safe, component-based UI.
-  - **Vite** for ultra-fast development and optimized production builds.
-  - **Tailwind CSS** for a premium, responsive, and maintainable design system.
-  - **Sonner & Lucide** for elegant notifications and iconography.
-- **Backend**: 
-  - **Node.js & Express** providing a high-performance RESTful API.
-  - **TypeScript** across the entire stack to ensure data consistency.
-  - **PostgreSQL** for robust, relational data storage.
-- **Security**: 
-  - **JWT (JSON Web Tokens)** for stateless, secure authentication.
-  - **Bcrypt** for industry-standard password hashing.
+**🚀 Live Demo**: [https://shamba-smart-nu.vercel.app/](https://shamba-smart-nu.vercel.app/)
 
 ---
 
-## ✨ Detailed Features
-
-### 1. Advanced Role-Based Access Control (RBAC)
-The system enforces strict security boundaries based on user roles:
-- **Admin (Coordinator)**:
-  - **Global Visibility**: Access to a high-level dashboard showing metrics across all fields.
-  - **Resource Management**: Full CRUD capabilities for fields and agent accounts.
-  - **Dynamic Assignment**: Ability to assign or reassign agents to fields to optimize coverage.
-- **Field Agent**:
-  - **Focused Workflow**: A dedicated portal that filters out noise, showing only their assigned plots.
-  - **Ground Reporting**: Simple interface to log observations and progress crops through their lifecycle.
-
-### 2. Intelligent Field Lifecycle Management
-Fields move through a strictly defined lifecycle: `PLANTED` → `GROWING` → `READY` → `HARVESTED`.
-
-#### **The "At Risk" Business Logic**
-The system doesn't just store data; it interprets it. A field's **Status** is computed dynamically:
-- **Completed**: The crop has been `HARVESTED`.
-- **At Risk**: Triggered if a field is still in `PLANTED` or `GROWING` stages but the current date is within **7 days** of (or has surpassed) the `expected_harvest_date`. This allows admins to intervene before the yield is lost.
-- **Active**: Default state for fields progressing on schedule.
-
-### 3. Automated Data Integrity
-- **Generated Columns**: The `expected_harvest_date` is managed at the database level using PostgreSQL's `GENERATED ALWAYS` feature, ensuring that whenever a planting date or duration changes, the harvest target updates automatically without application-layer bugs.
-- **Audit Trail**: Every update made by an agent creates a persistent record in the `field_updates` table, creating a historical timeline for every plot.
+## 📖 Table of Contents
+- [Quick Start Guide](#-quick-start-guide)
+- [Core Features](#-core-features)
+- [How It Works (Business Logic)](#-how-it-works-business-logic)
+- [Technical Stack](#-technical-stack)
+- [Design Decisions](#-design-decisions)
+- [Future Roadmap](#-future-roadmap)
+- [Demo Credentials](#-demo-credentials)
 
 ---
 
-## ⚙️ Setup & Installation
+## ⚡ Quick Start Guide
 
-### 1. Prerequisites
-- **Node.js** (v18.0.0+)
-- **PostgreSQL** (v14+)
-- **npm** or **yarn**
+Follow these steps to get ShambaSmart running on your local machine.
 
-### 2. Database Initialization
-Create a database named `smartShamba` and execute the schema:
-```bash
-psql -U your_postgres_user -d smartShamba -f backend/sql/schema.sql
-```
+### 1. Database Setup (PostgreSQL)
+Ensure you have PostgreSQL installed and running.
+1. Create a database named `smartShamba`.
+2. Open your terminal and run the following command to initialize the schema:
+   ```bash
+   psql -U your_username -d smartShamba -f backend/sql/schema.sql
+   ```
 
-### 3. Backend Configuration
-Navigate to `backend/`, install dependencies, and configure `.env`:
-```bash
-cd backend
-npm install
-```
-Example `.env`:
-```env
-PORT=5000
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=your_secure_password
-DB_NAME=smartShamba
-JWT_SECRET=your_jwt_signing_key
-```
-Start the API: `npm run dev`
+### 2. Backend Setup
+1. Navigate to the `backend` folder: `cd backend`.
+2. Install dependencies: `npm install`.
+3. Copy the example environment file: `cp .env.example .env` (or create one manually).
+4. Update the `.env` file with your PostgreSQL credentials:
+   ```env
+   PORT=5000
+   DB_HOST=localhost
+   DB_PORT=5432
+   DB_USER=your_username
+   DB_PASSWORD=your_password
+   DB_NAME=smartShamba
+   JWT_SECRET=supersecret_key
+   ```
+5. Start the server: `npm run dev`.
 
-### 4. Frontend Configuration
-Navigate to `frontend/`, install dependencies, and start the UI:
-```bash
-cd frontend
-npm install
-npm run dev
-```
+### 3. Frontend Setup
+1. Open a new terminal and navigate to the `frontend` folder: `cd frontend`.
+2. Install dependencies: `npm install`.
+3. Start the application: `npm run dev`.
+4. Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
-## 📐 Design Decisions & Assumptions
+## ✨ Core Features
 
-- **Stateless Auth**: Chose JWT over Sessions to allow the backend to scale horizontally without needing a shared session store.
-- **Atomic Updates**: When an agent logs an observation, the system allows them to update the field's stage simultaneously in a single workflow, reducing clicks and improving data accuracy.
-- **Deterministic UI**: Used deterministic hashing for field images to give each plot a unique visual identity without the overhead of an image hosting service for this MVP.
+### 👨‍💼 Admin (Coordinator) Portal
+- **Global Dashboard**: See the total number of fields, status breakdowns, and recent activity across the whole operation.
+- **Field Management**: Create new fields, specify crop types, and set planting dates.
+- **Agent Assignments**: Assign specific agents to fields. Admins can see who is responsible for which plot at a glance.
+- **Roster Management**: Register new field agents and manage their accounts.
 
----
-
-## 🏗️ Future Roadmap (If I Had More Time)
-
-While the current system is fully functional, the following improvements would elevate it to an enterprise-grade solution:
-
-1. **Offline-First Capabilities**: Field agents often work in areas with poor connectivity. Implementing a Service Worker and IndexedDB (PWA) would allow them to log updates offline and sync when they return to range.
-2. **Weather API Integration**: Integration with services like OpenWeather could automatically flag fields as "At Risk" if extreme weather events (frost, drought) are forecasted for a field's specific coordinates.
-3. **Multimedia Observations**: Adding the ability for agents to upload photos of pests or crop health directly from their phone's camera.
-4. **Geospatial Mapping**: Using Leaflet or Mapbox to visualize field boundaries on a real map rather than a list view, allowing coordinators to see geographical clusters of "At Risk" fields.
-5. **Automated Reporting**: A feature to generate monthly PDF summaries for stakeholders, detailing yield predictions and agent performance metrics.
-6. **Webhooks & Notifications**: Push notifications (via Firebase or Twilio) to alert admins immediately when a field's status changes to "At Risk."
+### 🚜 Field Agent Portal
+- **Personalized View**: Agents only see the fields assigned to them, keeping their workspace clean and focused.
+- **Real-time Updates**: Log observations and move fields through growth stages (`PLANTED` → `GROWING` → `READY` → `HARVESTED`).
+- **Observation History**: See a timeline of past notes for each field to track progress over time.
 
 ---
 
-## 🧪 Demo Access
+## 🧠 How It Works (Business Logic)
+
+The "Status" of a field is automatically calculated by the system to help coordinators prioritize their day.
+
+### The "At Risk" Logic
+A field is flagged as **At Risk** if:
+- It is currently in the `PLANTED` or `GROWING` stage.
+- **AND** the current date is within **7 days** of (or has passed) its `expected_harvest_date`.
+
+This logic assumes that if a crop hasn't reached the "Ready" stage by its target date, there may be an issue with growth, irrigation, or pests that requires immediate attention.
+
+### Harvest Forecasting
+The `expected_harvest_date` is automatically calculated by adding the `growth_duration_days` to the `planting_date`. This calculation happens at the database level to ensure data integrity across all services.
+
+---
+
+## 🛠️ Technical Stack
+
+- **Frontend**: React 19, TypeScript, Vite, Tailwind CSS.
+- **Backend**: Node.js, Express, TypeScript.
+- **Database**: PostgreSQL (Relational).
+- **Security**: JWT for authentication, Bcrypt for password hashing.
+- **Icons**: Lucide React.
+
+---
+
+## 📐 Design Decisions
+
+- **Relational Integrity**: Used PostgreSQL to manage the relationship between users (Agents) and fields. This ensures that when an agent is deleted or updated, the system maintains a clean state.
+- **Mobile-Responsive Design**: The UI is built with a "Mobile-First" approach using Tailwind CSS, as field agents are likely to use the app on smartphones while in the field.
+- **Stateless Auth**: Used JWT stored in `localStorage` to keep the application fast and scalable, avoiding the need for server-side sessions.
+- **Clean API**: Followed RESTful principles for endpoints, making the backend easy to test and extend.
+
+---
+
+## 🗺️ Future Roadmap
+
+If I had more time, I would implement:
+1. **Offline Sync**: Allow agents to log updates in remote areas without internet, syncing once they return to a 4G/Wi-Fi zone.
+2. **Photo Uploads**: Let agents attach photos of crops to their notes for better visual tracking.
+3. **Weather Integration**: Pull local weather data to correlate crop health with rainfall or temperature patterns.
+4. **Push Notifications**: Alert agents when a new field is assigned to them or alert admins when a field status changes to "At Risk."
+
+---
+
+## 🧪 Demo Credentials
 
 | Role | Email | Password |
 | :--- | :--- | :--- |
 | **Admin** | `admin@shamba.io` | `admin123` |
 | **Agent** | `agent@shamba.io` | `agent123` |
 
+*Note: New agents can be registered by the Admin via the Agent Roster page.*
+
 ---
-*Developed as a Technical Assessment for SmartSeason.*
+*Developed by Urbanus for the Full Stack Developer Assessment.*

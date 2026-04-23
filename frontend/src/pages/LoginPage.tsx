@@ -108,7 +108,7 @@ export function LoginPage() {
               Welcome back
             </h2>
             <p className="text-sm text-slate-500 mt-1">
-              Sign in to your account.
+              Sign in to your account. Users are managed by the administrator.
             </p>
           </div>
 
@@ -170,6 +170,24 @@ export function LoginPage() {
                 </>
               )}
             </button>
+
+            <div className="mt-8 pt-6 border-t border-slate-100">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+                Demo Credentials
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-100">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase">Admin</p>
+                  <p className="text-xs font-medium text-slate-600 mt-1">admin@shamba.io</p>
+                  <p className="text-xs text-slate-400 mt-0.5">admin123</p>
+                </div>
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-100">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase">Agent</p>
+                  <p className="text-xs font-medium text-slate-600 mt-1">agent@shamba.io</p>
+                  <p className="text-xs text-slate-400 mt-0.5">agent123</p>
+                </div>
+              </div>
+            </div>
           </form>
         </div>
       </div>
