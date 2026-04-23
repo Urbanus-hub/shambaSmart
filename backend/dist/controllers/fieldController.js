@@ -4,6 +4,7 @@ exports.create = create;
 exports.list = list;
 exports.detail = detail;
 exports.update = update;
+exports.remove = remove;
 const fieldService_1 = require("../services/fieldService");
 async function create(req, res) {
     try {
@@ -64,5 +65,14 @@ async function update(req, res) {
     }
     catch (error) {
         return res.status(500).json({ message: "Unable to update field" });
+    }
+}
+async function remove(req, res) {
+    try {
+        await (0, fieldService_1.deleteField)(req.params.id);
+        return res.json({ message: "Field deleted successfully" });
+    }
+    catch (error) {
+        return res.status(500).json({ message: "Unable to delete field" });
     }
 }

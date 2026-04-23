@@ -13,4 +13,6 @@ router.get("/", authMiddleware_1.authMiddleware, fieldController_1.list);
 router.get("/:id", authMiddleware_1.authMiddleware, fieldController_1.detail);
 //update a field
 router.patch("/:id", authMiddleware_1.authMiddleware, (0, roleMiddleware_1.roleMiddleware)("ADMIN"), fieldController_1.update);
+//delete a field
+router.delete("/:id", authMiddleware_1.authMiddleware, (0, roleMiddleware_1.roleMiddleware)("ADMIN"), fieldController_1.remove);
 exports.default = router;

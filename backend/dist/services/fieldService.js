@@ -7,11 +7,12 @@ exports.createField = createField;
 exports.updateField = updateField;
 exports.getFieldsForUser = getFieldsForUser;
 exports.getFieldById = getFieldById;
-const uuid_1 = require("uuid");
+exports.deleteField = deleteField;
+const crypto_1 = __importDefault(require("crypto"));
 const pool_1 = __importDefault(require("../db/pool"));
 const statusService_1 = require("./statusService");
 async function createField(data) {
-    const id = (0, uuid_1.v4)();
+    const id = crypto_1.default.randomUUID();
     const result = await pool_1.default.query(`INSERT INTO fields (id, name, crop_type, planting_date, growth_duration_days, stage, assigned_agent_id)
      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`, [
         id,
@@ -82,4 +83,7 @@ async function getFieldById(id) {
         return null;
     }
     return enrichRow(result.rows[0]);
+}
+async function deleteField(id) {
+    await pool_1.default.query("DELETE FROM fields WHERE id = $1", [id]);
 }

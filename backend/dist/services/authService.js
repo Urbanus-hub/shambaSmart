@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerUser = registerUser;
 exports.loginUser = loginUser;
-const uuid_1 = require("uuid");
+const crypto_1 = __importDefault(require("crypto"));
 const pool_1 = __importDefault(require("../db/pool"));
 const password_1 = require("../utils/password");
 const jwt_1 = require("../utils/jwt");
@@ -17,12 +17,18 @@ async function registerUser(name, email, password, role) {
         return null;
     }
     const passwordHash = await (0, password_1.hashPassword)(password);
-    const id = (0, uuid_1.v4)();
+    const id = crypto_1.default.randomUUID();
     // Generate a simple employee ID for agents
     const employee_id = role === "AGENT" ? `SS-${Math.floor(1000 + Math.random() * 9000)}` : null;
     await pool_1.default.query("INSERT INTO users (id, name, email, password, role, employee_id) VALUES ($1, $2, $3, $4, $5, $6)", [id, name, email, passwordHash, role, employee_id]);
     const token = (0, jwt_1.signToken)(id, role);
-    const user = { id, name, email, role, employee_id: employee_id || undefined };
+    const user = {
+        id,
+        name,
+        email,
+        role,
+        employee_id: employee_id || undefined,
+    };
     return { user, token };
 }
 async function loginUser(email, password) {

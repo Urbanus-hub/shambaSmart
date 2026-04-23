@@ -1,4 +1,4 @@
-import { v4 as uuid } from "uuid";
+import crypto from "crypto";
 import pool from "../db/pool";
 
 export async function addFieldUpdate(
@@ -6,7 +6,7 @@ export async function addFieldUpdate(
   agentId: string,
   note: string,
 ) {
-  const id = uuid();
+  const id = crypto.randomUUID();
   const result = await pool.query(
     "INSERT INTO field_updates (id, field_id, agent_id, note) VALUES ($1, $2, $3, $4) RETURNING *",
     [id, fieldId, agentId, note],

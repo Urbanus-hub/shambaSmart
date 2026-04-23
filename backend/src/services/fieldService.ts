@@ -1,4 +1,4 @@
-import { v4 as uuid } from "uuid";
+import crypto from "crypto";
 import pool from "../db/pool";
 import type { Field, UserRole } from "../types/models";
 import { getFieldStatus } from "./statusService";
@@ -10,7 +10,7 @@ type FieldRow = Field & {
 };
 
 export async function createField(data: Omit<Field, "id">) {
-  const id = uuid();
+  const id = crypto.randomUUID();
   const result = await pool.query(
     `INSERT INTO fields (id, name, crop_type, planting_date, growth_duration_days, stage, assigned_agent_id)
      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
@@ -54,10 +54,7 @@ export async function updateField(id: string, payload: Partial<Field>) {
 function enrichRow(row: FieldRow) {
   return {
     ...row,
-    status: getFieldStatus(
-      row.stage,
-      new Date(row.expected_harvest_date)
-    ),
+    status: getFieldStatus(row.stage, new Date(row.expected_harvest_date)),
   };
 }
 
