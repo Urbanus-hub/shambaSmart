@@ -27,7 +27,7 @@ let SAMPLE_AGENTS = [
 ];
 
 export function AgentManagement() {
-  const [agents, setAgents] = useState(SAMPLE_AGENTS);
+  const [agents, setAgents] = useState([]);
   const [isAgentModalOpen, setIsAgentModalOpen] = useState(false);
   const [editingAgent, setEditingAgent] = useState<any | null>(null);
 
@@ -35,7 +35,7 @@ export function AgentManagement() {
     e.preventDefault();
     if (editingAgent?.id) {
       setAgents(
-        agents.map((a) =>
+        agents?.map((a) =>
           a.id === editingAgent.id ? { ...a, ...editingAgent } : a,
         ),
       );
@@ -64,85 +64,85 @@ export function AgentManagement() {
         <div className="flex justify-between items-end">
           <div>
             <p className="text-[11px] uppercase tracking-[0.3em] text-[#36a783] font-bold">
-            Personnel
-          </p>
-          <h2 className="mt-1 font-display text-4xl text-[#1e5545] tracking-tight">
-            Agent Roster
-          </h2>
+              Personnel
+            </p>
+            <h2 className="mt-1 font-display text-4xl text-[#1e5545] tracking-tight">
+              Agent Roster
+            </h2>
+          </div>
+          <button
+            onClick={() => {
+              setEditingAgent({});
+              setIsAgentModalOpen(true);
+            }}
+            className="bg-[#244f3b] text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-[#1a3d2d] shadow-sm transition-colors"
+          >
+            <Plus className="w-4 h-4" /> Add Agent
+          </button>
         </div>
-        <button
-          onClick={() => {
-            setEditingAgent({});
-            setIsAgentModalOpen(true);
-          }}
-          className="bg-[#244f3b] text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-[#1a3d2d] shadow-sm transition-colors"
-        >
-          <Plus className="w-4 h-4" /> Add Agent
-        </button>
-      </div>
 
-      <div className="rounded-[2rem] border border-slate-200 bg-white p-6 md:p-8 shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 text-slate-500 uppercase tracking-wider text-[10px]">
-                <th className="pb-3 font-bold">Agent Name</th>
-                <th className="pb-3 font-bold">Region</th>
-                <th className="pb-3 font-bold">Status</th>
-                <th className="pb-3 font-bold text-center">Assignments</th>
-                <th className="pb-3 font-bold text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {agents.map((agent) => (
-                <tr
-                  key={agent.id}
-                  className="hover:bg-[#f2fbf5] group transition-colors"
-                >
-                  <td className="py-4 font-medium flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#e0f6e9] text-[#1e5545] flex items-center justify-center font-display">
-                      {agent.name.charAt(0)}
-                    </div>
-                    {agent.name}
-                  </td>
-                  <td className="py-4 text-slate-600">{agent.region}</td>
-                  <td className="py-4">
-                    <span
-                      className={`px-2 py-1 rounded-md text-[10px] uppercase font-bold tracking-wider ${
-                        agent.status === "Active"
-                          ? "bg-[#c2ecd6] text-[#1a463a]"
-                          : "bg-slate-100 text-slate-500"
-                      }`}
-                    >
-                      {agent.status}
-                    </span>
-                  </td>
-                  <td className="py-4 text-center font-medium">
-                    {agent.assignments}
-                  </td>
-                  <td className="py-4 text-right flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => {
-                        setEditingAgent(agent);
-                        setIsAgentModalOpen(true);
-                      }}
-                      className="p-2 text-slate-400 hover:text-[#36a783] bg-white rounded-md border border-slate-100 shadow-sm"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteAgent(agent.id)}
-                      className="p-2 text-slate-400 hover:text-red-500 bg-white rounded-md border border-slate-100 shadow-sm"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </td>
+        <div className="rounded-[2rem] border border-slate-200 bg-white p-6 md:p-8 shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 text-slate-500 uppercase tracking-wider text-[10px]">
+                  <th className="pb-3 font-bold">Agent Name</th>
+                  <th className="pb-3 font-bold">Region</th>
+                  <th className="pb-3 font-bold">Status</th>
+                  <th className="pb-3 font-bold text-center">Assignments</th>
+                  <th className="pb-3 font-bold text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {agents.map((agent) => (
+                  <tr
+                    key={agent.id}
+                    className="hover:bg-[#f2fbf5] group transition-colors"
+                  >
+                    <td className="py-4 font-medium flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#e0f6e9] text-[#1e5545] flex items-center justify-center font-display">
+                        {agent.name.charAt(0)}
+                      </div>
+                      {agent.name}
+                    </td>
+                    <td className="py-4 text-slate-600">{agent.region}</td>
+                    <td className="py-4">
+                      <span
+                        className={`px-2 py-1 rounded-md text-[10px] uppercase font-bold tracking-wider ${
+                          agent.status === "Active"
+                            ? "bg-[#c2ecd6] text-[#1a463a]"
+                            : "bg-slate-100 text-slate-500"
+                        }`}
+                      >
+                        {agent.status}
+                      </span>
+                    </td>
+                    <td className="py-4 text-center font-medium">
+                      {agent.assignments}
+                    </td>
+                    <td className="py-4 text-right flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => {
+                          setEditingAgent(agent);
+                          setIsAgentModalOpen(true);
+                        }}
+                        className="p-2 text-slate-400 hover:text-[#36a783] bg-white rounded-md border border-slate-100 shadow-sm"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteAgent(agent.id)}
+                        className="p-2 text-slate-400 hover:text-red-500 bg-white rounded-md border border-slate-100 shadow-sm"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
       </div>
 
       {/* Agent Modal */}

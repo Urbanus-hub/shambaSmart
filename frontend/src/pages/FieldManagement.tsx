@@ -108,62 +108,62 @@ export function FieldManagement() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end justify-between">
           <div>
             <p className="text-[11px] uppercase tracking-[0.3em] text-[#36a783] font-bold">
-            Database
-          </p>
-          <h2 className="mt-1 font-display text-4xl text-[#1e5545] tracking-tight">
-            Field Management
-          </h2>
-        </div>
-        <div className="flex gap-3 items-center w-full sm:w-auto">
-          <div className="relative flex-1 sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              placeholder="Search fields or crops..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#36a783] focus:ring-4 focus:ring-[#e0f6e9] transition-all bg-white"
-            />
+              Database
+            </p>
+            <h2 className="mt-1 font-display text-4xl text-[#1e5545] tracking-tight">
+              Field Management
+            </h2>
           </div>
-          <button
-            onClick={() => {
-              setEditingField({});
-              setIsFieldModalOpen(true);
-            }}
-            className="flex-none bg-[#244f3b] text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-[#1a3d2d] shadow-sm transition-colors"
-          >
-            <Plus className="w-4 h-4" /> Add Field
-          </button>
-        </div>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {filteredFields.map((field) => (
-          <div key={field.id} className="relative group">
-            <FieldCard field={field} />
-            <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0">
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  setEditingField(field);
-                  setIsFieldModalOpen(true);
-                }}
-                className="p-2.5 bg-white/95 backdrop-blur text-[#244f3b] hover:text-[#36a783] rounded-full shadow-md transition-colors hover:scale-105"
-              >
-                <Edit2 className="w-4 h-4" />
-              </button>
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleDeleteField(field.id);
-                }}
-                className="p-2.5 bg-white/95 backdrop-blur text-red-500 hover:text-red-600 rounded-full shadow-md transition-colors hover:scale-105"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
+          <div className="flex gap-3 items-center w-full sm:w-auto">
+            <div className="relative flex-1 sm:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                placeholder="Search fields or crops..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#36a783] focus:ring-4 focus:ring-[#e0f6e9] transition-all bg-white"
+              />
             </div>
+            <button
+              onClick={() => {
+                setEditingField({});
+                setIsFieldModalOpen(true);
+              }}
+              className="flex-none bg-[#244f3b] text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-[#1a3d2d] shadow-sm transition-colors"
+            >
+              <Plus className="w-4 h-4" /> Add Field
+            </button>
           </div>
-        ))}
-      </div>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {filteredFields.map((field) => (
+            <div key={field.id} className="relative group">
+              <FieldCard field={field} />
+              <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0">
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setEditingField(field);
+                    setIsFieldModalOpen(true);
+                  }}
+                  className="p-2.5 bg-white/95 backdrop-blur text-[#244f3b] hover:text-[#36a783] rounded-full shadow-md transition-colors hover:scale-105"
+                >
+                  <Edit2 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDeleteField(field.id);
+                  }}
+                  className="p-2.5 bg-white/95 backdrop-blur text-red-500 hover:text-red-600 rounded-full shadow-md transition-colors hover:scale-105"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {isFieldModalOpen && editingField && (
@@ -256,6 +256,24 @@ export function FieldManagement() {
                     <option value="Completed">Completed</option>
                   </select>
                 </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                    Assigned Agent ID
+                  </label>
+                  <input
+                    placeholder="E.g. Agent 1"
+                    value={editingField.assigned_agent_id || ""}
+                    onChange={(e) =>
+                      setEditingField({
+                        ...editingField,
+                        assigned_agent_id: e.target.value,
+                      })
+                    }
+                    className="w-full mt-1.5 p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#36a783] focus:ring-4 focus:ring-[#e0f6e9] transition-all bg-slate-50 focus:bg-white"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">
                     Planting Date

@@ -41,7 +41,7 @@ export function LoginPage() {
         <img
           src="farm2.jpg"
           alt="Lush green farm field"
-          className="absolute inset-0 w-full h-full object-cover opacity-50 mix-blend-overlay"
+          className="absolute inset-0 w-full h-full border border-red-300  mix-blend-overlay bg-no-repeat"
         />
         <div className="relative z-10">
           <p className="text-xs uppercase tracking-[0.3em] text-[#93dec1] font-semibold">

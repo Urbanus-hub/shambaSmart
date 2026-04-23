@@ -33,7 +33,7 @@ export function Sidebar({ role, user }: SidebarProps) {
             S
           </div>
           <span className="font-display text-2xl text-white tracking-tight">
-            Brain<span className="text-[#93dec1]">wave</span>
+            Shamba<span className="text-[#93dec1]">Smart</span>
           </span>
         </div>
       </div>
