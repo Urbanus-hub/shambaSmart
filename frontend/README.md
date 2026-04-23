@@ -1,16 +1,33 @@
-# React + Vite
+# ShambaSmart Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+ShambaSmart is a modern agricultural management dashboard built with React and Vite. It allows administrators to track fields and assign crop monitoring tasks to field agents.
 
-Currently, two official plugins are available:
+## Demo Credentials
+Use these pre-configured demo credentials to explore the app (once the database is seeded):
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### Administrators
+- **Email:** `admin@shambasmart.com`
+- **Password:** `admin123`
 
-## React Compiler
+### Agents
+- **Email:** `agent1@shambasmart.com`
+- **Password:** `agent123`
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Running Locally
 
-## Expanding the ESLint configuration
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+2. Start the development server (make sure your backend API is running):
+   ```bash
+   npm run dev
+   ```
+
+## Environment Variables
+
+Create a `.env` file in the root of the `frontend` folder with your backend URL:
+```env
+VITE_API_URL=http://localhost:5000/api
+```

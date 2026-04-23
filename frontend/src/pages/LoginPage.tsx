@@ -178,12 +178,12 @@ export function LoginPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-3 rounded-lg bg-slate-50 border border-slate-100">
                   <p className="text-[10px] font-bold text-slate-400 uppercase">Admin</p>
-                  <p className="text-xs font-medium text-slate-600 mt-1">admin@shamba.io</p>
+                  <p className="text-xs font-medium text-slate-600 mt-1">admin@shambasmart.com</p>
                   <p className="text-xs text-slate-400 mt-0.5">admin123</p>
                 </div>
                 <div className="p-3 rounded-lg bg-slate-50 border border-slate-100">
                   <p className="text-[10px] font-bold text-slate-400 uppercase">Agent</p>
-                  <p className="text-xs font-medium text-slate-600 mt-1">agent@shamba.io</p>
+                  <p className="text-xs font-medium text-slate-600 mt-1">agent1@shambasmart.com</p>
                   <p className="text-xs text-slate-400 mt-0.5">agent123</p>
                 </div>
               </div>
