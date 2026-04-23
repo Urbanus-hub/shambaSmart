@@ -56,7 +56,7 @@ function enrichRow(row: FieldRow) {
     ...row,
     status: getFieldStatus(
       row.stage,
-      row.last_update_at ? new Date(row.last_update_at) : null,
+      new Date(row.expected_harvest_date)
     ),
   };
 }

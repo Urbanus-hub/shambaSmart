@@ -1,3 +1,4 @@
+
 export type UserRole = "ADMIN" | "AGENT";
 
 export interface User {
@@ -21,26 +22,15 @@ export interface Field {
   expected_harvest_date: string;
   stage: FieldStage;
   assigned_agent_id: string | null;
-  agent_name?: string;
-  agent_employee_id?: string;
   status?: FieldStatus;
+  image_url?: string;
   created_at?: string;
-}
-
-export interface CreateFieldPayload {
-  name: string;
-  crop_type: string;
-  planting_date: string;
-  growth_duration_days: number;
-  stage: FieldStage;
-  assigned_agent_id: string | null;
 }
 
 export interface FieldUpdate {
   id: string;
   field_id: string;
   agent_id: string;
-  agent_name?: string;
   note: string;
   created_at: string;
 }

@@ -1,23 +1,21 @@
-const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
-
 export type FieldStatus = "Completed" | "At Risk" | "Active";
 
 export function getFieldStatus(
   stage: string,
-  lastUpdateAt: Date | null,
+  expectedHarvestDate: Date,
 ): FieldStatus {
   if (stage === "HARVESTED") {
     return "Completed";
   }
 
-  if (!lastUpdateAt) {
-    return "At Risk";
-  }
-
   const now = Date.now();
-  const lastUpdate = lastUpdateAt.getTime();
+  const harvestTime = expectedHarvestDate.getTime();
+  const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
 
-  if (now - lastUpdate > sevenDaysMs) {
+  if (
+    (stage === "PLANTED" || stage === "GROWING") &&
+    harvestTime - now <= sevenDaysMs
+  ) {
     return "At Risk";
   }
 

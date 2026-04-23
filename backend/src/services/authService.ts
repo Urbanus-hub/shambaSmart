@@ -10,34 +10,36 @@ export async function registerUser(
   password: string,
   role: "ADMIN" | "AGENT",
 ) {
-  console.log("pool:",pool);
   const existing = await pool.query("SELECT id FROM users WHERE email = $1", [
     email,
   ]);
-  if (existing.rowCount) {
+  if (existing.rowCount && existing.rowCount > 0) {
     return null;
   }
 
   const passwordHash = await hashPassword(password);
   const id = uuid();
+  
+  // Generate a simple employee ID for agents
+  const employee_id = role === "AGENT" ? `SS-${Math.floor(1000 + Math.random() * 9000)}` : null;
 
-  const results = await pool.query(
-    "INSERT INTO users (id, name, email, password, role) VALUES ($1, $2, $3, $4, $5)",
-    [id, name, email, passwordHash, role],
+  await pool.query(
+    "INSERT INTO users (id, name, email, password, role, employee_id) VALUES ($1, $2, $3, $4, $5, $6)",
+    [id, name, email, passwordHash, role, employee_id],
   );
-console.log("register",results)
+
   const token = signToken(id, role);
 
-  const user: User = { id, name, email, role };
+  const user: User = { id, name, email, role, employee_id: employee_id || undefined };
   return { user, token };
 }
 
 export async function loginUser(email: string, password: string) {
   const result = await pool.query(
-    "SELECT id, name, email, password, role FROM users WHERE email = $1",
+    "SELECT id, name, email, password, role, employee_id FROM users WHERE email = $1",
     [email],
   );
-  if (!result.rowCount) {
+  if (!result.rowCount || result.rowCount === 0) {
     return null;
   }
 
@@ -54,6 +56,7 @@ export async function loginUser(email: string, password: string) {
     name: row.name,
     email: row.email,
     role: row.role,
+    employee_id: row.employee_id,
   };
   return { user, token };
 }

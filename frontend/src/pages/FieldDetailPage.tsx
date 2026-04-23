@@ -5,6 +5,7 @@ import {
   createUpdate,
   fetchField,
   fetchUpdates,
+  updateField as updateFieldService,
 } from "../services/fieldService";
 import { StatusBadge, StageBadge } from "../components/StatusBadge";
 import { UpdateForm } from "../components/UpdateForm";
@@ -61,9 +62,15 @@ export function FieldDetailPage() {
     load();
   }, [id]);
 
-  const handleUpdate = async (note: string) => {
+  const handleUpdate = async (note: string, stage: any) => {
     if (!id) return;
     try {
+      // If stage has changed, update the field stage first
+      if (stage !== field?.stage) {
+        await updateFieldService(id, { stage });
+        setField((prev) => (prev ? { ...prev, stage } : prev));
+      }
+
       const update = await createUpdate(id, note);
       setUpdates((prev) => [update, ...prev]);
       toast.success("Update logged successfully");
