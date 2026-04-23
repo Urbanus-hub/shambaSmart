@@ -1,4 +1,4 @@
-import { v4 as uuid } from "uuid";
+import crypto from "crypto";
 import pool from "../db/pool";
 import type { User } from "../types/models";
 import { hashPassword, comparePassword } from "../utils/password";
@@ -18,10 +18,11 @@ export async function registerUser(
   }
 
   const passwordHash = await hashPassword(password);
-  const id = uuid();
-  
+  const id = crypto.randomUUID();
+
   // Generate a simple employee ID for agents
-  const employee_id = role === "AGENT" ? `SS-${Math.floor(1000 + Math.random() * 9000)}` : null;
+  const employee_id =
+    role === "AGENT" ? `SS-${Math.floor(1000 + Math.random() * 9000)}` : null;
 
   await pool.query(
     "INSERT INTO users (id, name, email, password, role, employee_id) VALUES ($1, $2, $3, $4, $5, $6)",
@@ -30,7 +31,13 @@ export async function registerUser(
 
   const token = signToken(id, role);
 
-  const user: User = { id, name, email, role, employee_id: employee_id || undefined };
+  const user: User = {
+    id,
+    name,
+    email,
+    role,
+    employee_id: employee_id || undefined,
+  };
   return { user, token };
 }
 
