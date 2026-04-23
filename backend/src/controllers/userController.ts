@@ -26,6 +26,7 @@ export async function remove(req: Request, res: Response) {
     await deleteUser(req.params.id);
     return res.json({ message: "Agent deleted successfully" });
   } catch (error) {
+    console.error("Delete agent error:", error);
     return res.status(500).json({ message: "Unable to delete agent" });
   }
 }

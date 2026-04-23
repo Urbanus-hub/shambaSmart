@@ -7,7 +7,11 @@ import { Spinner } from "../components/Spinner";
 import { EmptyState } from "../components/EmptyState";
 import { Modal } from "../components/Modal";
 import type { Field, FieldStage, User } from "../types";
-import { fetchFields, createField, updateField } from "../services/fieldService";
+import {
+  fetchFields,
+  createField,
+  updateField,
+} from "../services/fieldService";
 import { fetchAgents } from "../services/userService";
 import { useAuth } from "../hooks/useAuth";
 
@@ -94,7 +98,7 @@ export function FieldManagement() {
 
   return (
     <>
-      <div className="space-y-6 animate-in fade-in slide-up">
+      <div className="space-y-6 animate-in fade-in duration-300">
         <PageHeader
           title="Fields"
           description="Manage and track your agricultural operations."
@@ -109,7 +113,10 @@ export function FieldManagement() {
             />
           </div>
           {isAdmin && (
-            <button onClick={openCreateModal} className="btn-primary whitespace-nowrap">
+            <button
+              onClick={openCreateModal}
+              className="btn-primary whitespace-nowrap"
+            >
               <Plus className="w-4 h-4" /> New Field
             </button>
           )}
@@ -120,13 +127,41 @@ export function FieldManagement() {
             title="No fields found"
             description="Get started by creating a new field."
             action={
-              isAdmin ? { label: "Create Field", onClick: openCreateModal } : undefined
+              isAdmin
+                ? { label: "Create Field", onClick: openCreateModal }
+                : undefined
             }
           />
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {filteredFields.map((field) => (
-              <FieldCard key={field.id} field={field} />
+              <FieldCard
+                key={field.id}
+                field={field}
+                isAdmin={isAdmin}
+                onEdit={(field) => {
+                  setEditingField({
+                    ...field,
+                    planting_date: field.planting_date
+                      ? new Date(field.planting_date)
+                          .toISOString()
+                          .split("T")[0]
+                      : "",
+                  });
+                  setIsModalOpen(true);
+                }}
+                onDelete={async (field) => {
+                  try {
+                    await import("../services/fieldService").then((m) =>
+                      m.deleteField(field.id),
+                    );
+                    setFields((prev) => prev.filter((f) => f.id !== field.id));
+                    toast.success("Field deleted successfully");
+                  } catch (err) {
+                    toast.error("Failed to delete field");
+                  }
+                }}
+              />
             ))}
           </div>
         )}
@@ -185,7 +220,10 @@ export function FieldManagement() {
                 required
                 value={editingField?.crop_type || ""}
                 onChange={(e) =>
-                  setEditingField({ ...editingField, crop_type: e.target.value })
+                  setEditingField({
+                    ...editingField,
+                    crop_type: e.target.value,
+                  })
                 }
                 placeholder="e.g. Maize"
                 className="input-field"

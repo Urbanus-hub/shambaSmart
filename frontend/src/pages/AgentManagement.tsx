@@ -1,19 +1,21 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Plus, Edit2, X } from "lucide-react";
+import { Plus, Edit2, X, Trash2 } from "lucide-react";
 import { PageHeader } from "../components/PageHeader";
 import { Spinner } from "../components/Spinner";
 import { EmptyState } from "../components/EmptyState";
 import { Modal } from "../components/Modal";
 import type { User } from "../types";
-import { fetchAgents } from "../services/userService";
+import { fetchAgents, deleteAgent, updateAgent } from "../services/userService";
 import { register } from "../services/authService";
 
 export function AgentManagement() {
   const [agents, setAgents] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingAgent, setEditingAgent] = useState<Partial<User & { password?: string }> | null>(null);
+  const [editingAgent, setEditingAgent] = useState<Partial<
+    User & { password?: string }
+  > | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -51,6 +53,10 @@ export function AgentManagement() {
         );
         toast.success("Agent registered successfully");
         await loadAgents();
+      } else {
+        await updateAgent(editingAgent.id, editingAgent);
+        toast.success("Agent updated successfully");
+        await loadAgents();
       }
       setIsModalOpen(false);
       setEditingAgent(null);
@@ -60,13 +66,33 @@ export function AgentManagement() {
     setSaving(false);
   };
 
+  const handleDeleteAgent = async (id: string) => {
+    if (
+      !confirm(
+        "Are you sure you want to delete this agent? This action cannot be undone.",
+      )
+    )
+      return;
+
+    try {
+      await deleteAgent(id);
+      setAgents((prev) => prev.filter((agent) => agent.id !== id));
+      toast.success("Agent deleted successfully");
+    } catch {
+      toast.error("Failed to delete agent");
+    }
+  };
+
   if (loading) return <Spinner />;
 
   return (
     <>
-      <div className="space-y-6 animate-in fade-in slide-up">
+      <div className="animate-in space-y-6 fade-in duration-300">
         <PageHeader title="Agent Roster" description="Manage field agents.">
-          <button onClick={openCreateModal} className="btn-primary whitespace-nowrap">
+          <button
+            onClick={openCreateModal}
+            className="btn-primary whitespace-nowrap"
+          >
             <Plus className="w-4 h-4" /> Add Agent
           </button>
         </PageHeader>
@@ -118,21 +144,31 @@ export function AgentManagement() {
                       <td className="px-6 py-4 text-slate-600">
                         {agent.employee_id || "—"}
                       </td>
-                      <td className="px-6 py-4 text-slate-500 text-xs">
+                      <td className="px-6 py-4 text-xs text-slate-500">
                         {agent.created_at
                           ? new Date(agent.created_at).toLocaleDateString()
                           : "—"}
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={() => {
-                            setEditingAgent(agent);
-                            setIsModalOpen(true);
-                          }}
-                          className="p-2 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-md transition-colors opacity-0 group-hover:opacity-100"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex justify-end gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+                          <button
+                            onClick={() => {
+                              setEditingAgent(agent);
+                              setIsModalOpen(true);
+                            }}
+                            title="Edit Agent"
+                            className="rounded-md bg-white/90 p-1.5 text-slate-400 shadow-sm transition-colors hover:bg-brand-50 hover:text-brand-600"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteAgent(agent.id)}
+                            title="Delete Agent"
+                            className="rounded-md bg-white/90 p-1.5 text-slate-400 shadow-sm transition-colors hover:bg-red-50 hover:text-red-600"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -188,21 +224,21 @@ export function AgentManagement() {
               className="input-field"
             />
           </div>
+          <div>
+            <label className="label-field">Email</label>
+            <input
+              type="email"
+              required
+              value={editingAgent?.email || ""}
+              onChange={(e) =>
+                setEditingAgent({ ...editingAgent, email: e.target.value })
+              }
+              placeholder="agent@shamba.io"
+              className="input-field"
+            />
+          </div>
           {!editingAgent?.id && (
             <>
-              <div>
-                <label className="label-field">Email</label>
-                <input
-                  type="email"
-                  required
-                  value={editingAgent?.email || ""}
-                  onChange={(e) =>
-                    setEditingAgent({ ...editingAgent, email: e.target.value })
-                  }
-                  placeholder="agent@shamba.io"
-                  className="input-field"
-                />
-              </div>
               <div>
                 <label className="label-field">Password</label>
                 <input
