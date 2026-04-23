@@ -38,3 +38,7 @@ export async function createUpdate(
   });
   return response.data;
 }
+
+export async function deleteField(id: string): Promise<void> {
+  await api.delete(`/fields/${id}`);
+}

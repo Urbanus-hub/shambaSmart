@@ -4,6 +4,7 @@ import {
   getFieldById,
   getFieldsForUser,
   updateField,
+  deleteField,
 } from "../services/fieldService";
 
 export async function create(req: Request, res: Response) {
@@ -74,3 +75,11 @@ export async function update(req: Request, res: Response) {
   }
 }
 
+export async function remove(req: Request, res: Response) {
+  try {
+    await deleteField(req.params.id);
+    return res.json({ message: "Field deleted successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Unable to delete field" });
+  }
+}

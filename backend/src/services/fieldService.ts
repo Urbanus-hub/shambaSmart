@@ -105,3 +105,6 @@ export async function getFieldById(id: string) {
 
   return enrichRow(result.rows[0]);
 }
+export async function deleteField(id: string) {
+  await pool.query("DELETE FROM fields WHERE id = $1", [id]);
+}

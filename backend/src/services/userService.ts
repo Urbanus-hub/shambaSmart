@@ -7,3 +7,18 @@ export async function getAgents(): Promise<User[]> {
   );
   return result.rows;
 }
+
+export async function updateUser(id: string, data: Partial<User>) {
+  const result = await pool.query(
+    `UPDATE users 
+     SET name = COALESCE($1, name),
+         email = COALESCE($2, email)
+     WHERE id = $3 RETURNING id, name, email, role, employee_id`,
+    [data.name, data.email, id],
+  );
+  return result.rows[0];
+}
+
+export async function deleteUser(id: string) {
+  await pool.query("DELETE FROM users WHERE id = $1", [id]);
+}

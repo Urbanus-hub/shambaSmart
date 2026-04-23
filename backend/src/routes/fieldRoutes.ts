@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { create, detail, list, update } from "../controllers/fieldController";
+import { create, detail, list, update, remove } from "../controllers/fieldController";
 import { authMiddleware } from "../middleware/authMiddleware";
 import { roleMiddleware } from "../middleware/roleMiddleware";
 
@@ -12,5 +12,7 @@ router.get("/", authMiddleware, list);
 router.get("/:id", authMiddleware, detail);
 //update a field
 router.patch("/:id", authMiddleware, roleMiddleware("ADMIN"), update);
+//delete a field
+router.delete("/:id", authMiddleware, roleMiddleware("ADMIN"), remove);
 
 export default router;
