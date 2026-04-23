@@ -1,91 +1,87 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Plus, Edit2, Trash2, X, Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { FieldCard } from "../components/FieldCard";
-import type { Field } from "../types";
-import { fetchFields } from "../services/fieldService";
-
-let SAMPLE_FIELDS: Field[] = [
-  {
-    id: "101",
-    name: "Plot Alpha (Mock)",
-    crop_type: "Maize",
-    planting_date: "2026-03-01",
-    stage: "GROWING",
-    assigned_agent_id: "1",
-    status: "Active",
-    image_url:
-      "https://images.unsplash.com/photo-1601334857416-8c43cb8d2cd1?auto=format&fit=crop&q=80&w=600",
-  },
-  {
-    id: "102",
-    name: "Plot Beta (Mock)",
-    crop_type: "Wheat",
-    planting_date: "2026-02-15",
-    stage: "READY",
-    assigned_agent_id: "3",
-    status: "Completed",
-    image_url:
-      "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&q=80&w=600",
-  },
-  {
-    id: "103",
-    name: "Plot Gamma (Mock)",
-    crop_type: "Beans",
-    planting_date: "2026-04-01",
-    stage: "PLANTED",
-    assigned_agent_id: "1",
-    status: "At Risk",
-    image_url:
-      "https://images.unsplash.com/photo-1589923188900-85dae5243404?auto=format&fit=crop&q=80&w=600",
-  },
-];
+import { PageHeader } from "../components/PageHeader";
+import { Spinner } from "../components/Spinner";
+import { EmptyState } from "../components/EmptyState";
+import { Modal } from "../components/Modal";
+import type { Field, FieldStage, User } from "../types";
+import { fetchFields, createField, updateField } from "../services/fieldService";
+import { fetchAgents } from "../services/userService";
+import { useAuth } from "../hooks/useAuth";
 
 export function FieldManagement() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
+
   const [fields, setFields] = useState<Field[]>([]);
+  const [agents, setAgents] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-
-  const [isFieldModalOpen, setIsFieldModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingField, setEditingField] = useState<Partial<Field> | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const data = await fetchFields();
-        setFields(data.length ? data : [...SAMPLE_FIELDS]);
-      } catch (err) {
-        setFields(SAMPLE_FIELDS);
+        const [fieldsData, agentsData] = await Promise.all([
+          fetchFields(),
+          isAdmin ? fetchAgents() : Promise.resolve([]),
+        ]);
+        setFields(fieldsData);
+        setAgents(agentsData);
+      } catch {
+        toast.error("Failed to load data");
       }
       setLoading(false);
     };
     load();
-  }, []);
+  }, [isAdmin]);
 
-  const handleSaveField = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingField?.id) {
-      setFields(
-        fields.map((f) =>
-          f.id === editingField.id ? ({ ...f, ...editingField } as Field) : f,
-        ),
-      );
-      toast.success("Field updated successfully");
-    } else {
-      const newField = {
-        ...editingField,
-        id: Math.random().toString(),
-      } as Field;
-      setFields([newField, ...fields]);
-      toast.success("New field registered");
-    }
-    setIsFieldModalOpen(false);
-    setEditingField(null);
+  const openCreateModal = () => {
+    setEditingField({ stage: "PLANTED" as FieldStage });
+    setIsModalOpen(true);
   };
 
-  const handleDeleteField = (id: string) => {
-    setFields(fields.filter((f) => f.id !== id));
-    toast.error("Field removed from registry");
+  const handleSaveField = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingField) return;
+    setSaving(true);
+
+    try {
+      if (editingField.id) {
+        const updated = await updateField(editingField.id, {
+          name: editingField.name,
+          crop_type: editingField.crop_type,
+          planting_date: editingField.planting_date,
+          growth_duration_days: editingField.growth_duration_days,
+          stage: editingField.stage,
+          assigned_agent_id: editingField.assigned_agent_id || null,
+        });
+        setFields((prev) =>
+          prev.map((f) => (f.id === updated.id ? { ...f, ...updated } : f)),
+        );
+        toast.success("Field updated successfully");
+      } else {
+        const created = await createField({
+          name: editingField.name!,
+          crop_type: editingField.crop_type!,
+          planting_date: editingField.planting_date!,
+          growth_duration_days: editingField.growth_duration_days!,
+          stage: (editingField.stage as FieldStage) || "PLANTED",
+          assigned_agent_id: editingField.assigned_agent_id || null,
+        });
+        setFields((prev) => [created, ...prev]);
+        toast.success("Field created successfully");
+      }
+      setIsModalOpen(false);
+      setEditingField(null);
+    } catch {
+      toast.error("Failed to save field");
+    }
+    setSaving(false);
   };
 
   const filteredFields = fields.filter(
@@ -94,232 +90,171 @@ export function FieldManagement() {
       f.crop_type.toLowerCase().includes(search.toLowerCase()),
   );
 
-  if (loading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#e0f6e9] border-t-[#36a783]"></div>
-      </div>
-    );
-  }
+  if (loading) return <Spinner />;
 
   return (
     <>
-      <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500 fade-in">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end justify-between">
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.3em] text-[#36a783] font-bold">
-              Database
-            </p>
-            <h2 className="mt-1 font-display text-4xl text-[#1e5545] tracking-tight">
-              Field Management
-            </h2>
+      <div className="space-y-6 animate-in fade-in slide-up">
+        <PageHeader
+          title="Fields"
+          description="Manage and track your agricultural operations."
+        >
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              placeholder="Search by field or crop..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="input-field pl-9"
+            />
           </div>
-          <div className="flex gap-3 items-center w-full sm:w-auto">
-            <div className="relative flex-1 sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                placeholder="Search fields or crops..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#36a783] focus:ring-4 focus:ring-[#e0f6e9] transition-all bg-white"
-              />
-            </div>
-            <button
-              onClick={() => {
-                setEditingField({});
-                setIsFieldModalOpen(true);
-              }}
-              className="flex-none bg-[#244f3b] text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-[#1a3d2d] shadow-sm transition-colors"
-            >
-              <Plus className="w-4 h-4" /> Add Field
+          {isAdmin && (
+            <button onClick={openCreateModal} className="btn-primary whitespace-nowrap">
+              <Plus className="w-4 h-4" /> New Field
             </button>
-          </div>
-        </div>
+          )}
+        </PageHeader>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredFields.map((field) => (
-            <div key={field.id} className="relative group">
-              <FieldCard field={field} />
-              <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0">
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setEditingField(field);
-                    setIsFieldModalOpen(true);
-                  }}
-                  className="p-2.5 bg-white/95 backdrop-blur text-[#244f3b] hover:text-[#36a783] rounded-full shadow-md transition-colors hover:scale-105"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleDeleteField(field.id);
-                  }}
-                  className="p-2.5 bg-white/95 backdrop-blur text-red-500 hover:text-red-600 rounded-full shadow-md transition-colors hover:scale-105"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+        {filteredFields.length === 0 ? (
+          <EmptyState
+            title="No fields found"
+            description="Get started by creating a new field."
+            action={
+              isAdmin ? { label: "Create Field", onClick: openCreateModal } : undefined
+            }
+          />
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {filteredFields.map((field) => (
+              <FieldCard key={field.id} field={field} />
+            ))}
+          </div>
+        )}
       </div>
 
-      {isFieldModalOpen && editingField && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="bg-white rounded-3xl w-full max-w-lg p-8 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-display text-2xl text-[#1e5545]">
-                {editingField.id ? "Edit Field" : "Register Field"}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setIsFieldModalOpen(false)}
-                className="p-2 bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+      <Modal
+        open={isModalOpen && !!editingField}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingField(null);
+        }}
+        title={editingField?.id ? "Edit Field" : "Create New Field"}
+        description="Enter details for agricultural tracking"
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="btn-secondary"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              form="fieldForm"
+              disabled={saving}
+              className="btn-primary"
+            >
+              {saving
+                ? "Saving..."
+                : editingField?.id
+                  ? "Save Changes"
+                  : "Create Field"}
+            </button>
+          </>
+        }
+      >
+        <form id="fieldForm" onSubmit={handleSaveField} className="space-y-4">
+          <div>
+            <label className="label-field">Field Name</label>
+            <input
+              required
+              value={editingField?.name || ""}
+              onChange={(e) =>
+                setEditingField({ ...editingField, name: e.target.value })
+              }
+              placeholder="e.g. North Plot 01"
+              className="input-field"
+            />
+          </div>
 
-            <form onSubmit={handleSaveField} className="space-y-5">
-              <div>
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-                  Field Name
-                </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="label-field">Crop Type</label>
+              <input
+                required
+                value={editingField?.crop_type || ""}
+                onChange={(e) =>
+                  setEditingField({ ...editingField, crop_type: e.target.value })
+                }
+                placeholder="e.g. Maize"
+                className="input-field"
+              />
+            </div>
+            <div>
+              <label className="label-field">Growth Duration</label>
+              <div className="relative">
                 <input
+                  type="number"
                   required
-                  value={editingField.name || ""}
-                  onChange={(e) =>
-                    setEditingField({ ...editingField, name: e.target.value })
-                  }
-                  className="w-full mt-1.5 p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#36a783] focus:ring-4 focus:ring-[#e0f6e9] transition-all bg-slate-50 focus:bg-white"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-                    Crop Type
-                  </label>
-                  <input
-                    required
-                    value={editingField.crop_type || ""}
-                    onChange={(e) =>
-                      setEditingField({
-                        ...editingField,
-                        crop_type: e.target.value,
-                      })
-                    }
-                    className="w-full mt-1.5 p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#36a783] focus:ring-4 focus:ring-[#e0f6e9] transition-all bg-slate-50 focus:bg-white"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-                    Stage
-                  </label>
-                  <select
-                    required
-                    value={editingField.stage || "PLANTED"}
-                    onChange={(e) =>
-                      setEditingField({
-                        ...editingField,
-                        stage: e.target.value as any,
-                      })
-                    }
-                    className="w-full mt-1.5 p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#36a783] focus:ring-4 focus:ring-[#e0f6e9] transition-all bg-slate-50 focus:bg-white"
-                  >
-                    <option value="PLANTED">Planted</option>
-                    <option value="GROWING">Growing</option>
-                    <option value="READY">Ready</option>
-                    <option value="HARVESTED">Harvested</option>
-                  </select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-                    Status
-                  </label>
-                  <select
-                    required
-                    value={editingField.status || "Active"}
-                    onChange={(e) =>
-                      setEditingField({
-                        ...editingField,
-                        status: e.target.value as any,
-                      })
-                    }
-                    className="w-full mt-1.5 p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#36a783] focus:ring-4 focus:ring-[#e0f6e9] transition-all bg-slate-50 focus:bg-white"
-                  >
-                    <option value="Active">Active</option>
-                    <option value="At Risk">At Risk</option>
-                    <option value="Completed">Completed</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-                    Assigned Agent ID
-                  </label>
-                  <input
-                    placeholder="E.g. Agent 1"
-                    value={editingField.assigned_agent_id || ""}
-                    onChange={(e) =>
-                      setEditingField({
-                        ...editingField,
-                        assigned_agent_id: e.target.value,
-                      })
-                    }
-                    className="w-full mt-1.5 p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#36a783] focus:ring-4 focus:ring-[#e0f6e9] transition-all bg-slate-50 focus:bg-white"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-                    Planting Date
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={editingField.planting_date || ""}
-                    onChange={(e) =>
-                      setEditingField({
-                        ...editingField,
-                        planting_date: e.target.value,
-                      })
-                    }
-                    className="w-full mt-1.5 p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#36a783] focus:ring-4 focus:ring-[#e0f6e9] transition-all bg-slate-50 focus:bg-white"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-                  Image URL (Optional)
-                </label>
-                <input
-                  value={editingField.image_url || ""}
+                  min="1"
+                  value={editingField?.growth_duration_days || ""}
                   onChange={(e) =>
                     setEditingField({
                       ...editingField,
-                      image_url: e.target.value,
+                      growth_duration_days: Number(e.target.value),
                     })
                   }
-                  className="w-full mt-1.5 p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#36a783] focus:ring-4 focus:ring-[#e0f6e9] transition-all bg-slate-50 focus:bg-white"
-                  placeholder="https://..."
+                  placeholder="90"
+                  className="input-field pr-12"
                 />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 pointer-events-none">
+                  days
+                </span>
               </div>
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  className="w-full bg-[#244f3b] text-white py-3.5 rounded-xl font-bold tracking-wide hover:bg-[#1a3d2d] shadow-md transition-colors"
-                >
-                  {editingField.id ? "Save Settings" : "Complete Registration"}
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
-        </div>
-      )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="label-field">Planting Date</label>
+              <input
+                type="date"
+                required
+                value={editingField?.planting_date || ""}
+                onChange={(e) =>
+                  setEditingField({
+                    ...editingField,
+                    planting_date: e.target.value,
+                  })
+                }
+                className="input-field"
+              />
+            </div>
+            <div>
+              <label className="label-field">Assigned Agent</label>
+              <select
+                value={editingField?.assigned_agent_id || ""}
+                onChange={(e) =>
+                  setEditingField({
+                    ...editingField,
+                    assigned_agent_id: e.target.value || null,
+                  })
+                }
+                className="input-field"
+              >
+                <option value="">Unassigned</option>
+                {agents.map((agent) => (
+                  <option key={agent.id} value={agent.id}>
+                    {agent.name}
+                    {agent.employee_id ? ` (${agent.employee_id})` : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </form>
+      </Modal>
     </>
   );
 }

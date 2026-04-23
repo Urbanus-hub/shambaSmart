@@ -1,16 +1,25 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, LogOut, Map, Tractor, Users } from "lucide-react";
+import {
+  LayoutDashboard,
+  LogOut,
+  Map,
+  Users,
+  X,
+  Sprout,
+} from "lucide-react";
 import type { UserRole, User } from "../types";
 import { useAuth } from "../hooks/useAuth";
 
 interface SidebarProps {
   role: UserRole;
   user: User;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
 }
 
-export function Sidebar({ role, user }: SidebarProps) {
+export function Sidebar({ role, user, isOpen, setIsOpen }: SidebarProps) {
   const { logout } = useAuth();
-  
+
   const items =
     role === "ADMIN"
       ? [
@@ -19,72 +28,95 @@ export function Sidebar({ role, user }: SidebarProps) {
           { to: "/admin/agents", label: "Agents", icon: Users },
         ]
       : [
-          { to: "/agent/dashboard", label: "Assignments", icon: Tractor },
-          { to: "/agent/fields", label: "Logbook", icon: Map },
+          { to: "/agent/dashboard", label: "Dashboard", icon: LayoutDashboard },
+          { to: "/agent/fields", label: "My Fields", icon: Map },
         ];
 
   return (
-    <aside className="hidden md:flex flex-col w-64 h-full bg-[#1e5545] border-r border-[#1a4a3c] text-[#e0f6e9] shadow-2xl relative z-10 animate-in slide-in-from-left duration-300">
-      
-      {/* Branding Header */}
-      <div className="p-6 border-b border-[#36a783]/20">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#36a783] flex items-center justify-center text-white font-display text-xl font-bold shadow-inner">
-            S
-          </div>
-          <span className="font-display text-2xl text-white tracking-tight">
-            Shamba<span className="text-[#93dec1]">Smart</span>
-          </span>
-        </div>
-      </div>
+    <>
+      {/* Mobile Backdrop */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-xs lg:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
 
-      {/* Navigation */}
-      <div className="flex-1 px-4 py-8 space-y-1 overflow-y-auto">
-        <p className="px-2 text-[10px] uppercase tracking-[0.2em] text-[#36a783] mb-4 font-bold opacity-80">
-          Navigation
-        </p>
-        <nav className="space-y-3">
+      <aside
+        className={`
+          fixed lg:static inset-y-0 left-0 z-50
+          w-64 bg-sidebar-bg text-white
+          flex flex-col h-full
+          transform transition-transform duration-300 ease-out
+          ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+        `}
+      >
+        {/* Logo */}
+        <div className="flex items-center justify-between px-5 py-5 border-b border-white/10">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500">
+              <Sprout className="h-4.5 w-4.5 text-white" />
+            </div>
+            <span className="text-lg font-semibold tracking-tight">
+              ShambaSmart
+            </span>
+          </div>
+          <button
+            className="lg:hidden p-1.5 text-white/60 hover:text-white hover:bg-white/10 rounded-md transition-colors"
+            onClick={() => setIsOpen(false)}
+          >
+            <X className="w-4.5 h-4.5" />
+          </button>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {items.map((item) => {
             const Icon = item.icon;
             return (
               <NavLink
                 key={item.to}
                 to={item.to}
+                onClick={() => setIsOpen(false)}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3.5 text-sm font-semibold transition-all duration-200 rounded-2xl ${
+                  `group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
                     isActive
-                      ? "bg-[#2a755d] text-white shadow-sm ring-1 ring-[#36a783]/50"
-                      : "text-[#c2ecd6] hover:bg-[#36a783]/20 hover:text-white"
+                      ? "bg-sidebar-active text-sidebar-bg shadow-xs"
+                      : "text-white/70 hover:text-white hover:bg-sidebar-hover"
                   }`
                 }
               >
-                <Icon className="w-5 h-5 opacity-90" strokeWidth={2} />
+                <Icon className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} />
                 {item.label}
               </NavLink>
             );
           })}
         </nav>
-      </div>
 
-      {/* User Section / Bottom */}
-      <div className="p-5 border-t border-[#36a783]/20 bg-[#1a4a3c]">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#f2fbf5] text-[#1e5545] flex items-center justify-center font-bold text-sm shadow-inner">
-            {user.name.charAt(0)}
+        {/* User Card */}
+        <div className="p-3 border-t border-white/10">
+          <div className="flex items-center gap-3 px-3 py-3 rounded-lg bg-white/5">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-500/20 text-brand-200 text-sm font-semibold">
+              {user.name?.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-white truncate">
+                {user.name}
+              </p>
+              <p className="text-xs text-white/50 truncate">
+                {user.role === "ADMIN" ? "Administrator" : "Field Agent"}
+              </p>
+            </div>
+            <button
+              onClick={logout}
+              className="p-1.5 text-white/40 hover:text-red-300 hover:bg-white/10 rounded-md transition-colors"
+              title="Sign out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
-          <div className="flex-1 min-w-0 pr-2">
-            <p className="text-sm font-bold text-white truncate">{user.name}</p>
-            <p className="text-[10px] text-[#93dec1] uppercase tracking-widest mt-0.5">{user.role}</p>
-          </div>
-          <button 
-            onClick={logout}
-            className="p-2.5 text-[#93dec1] hover:text-white hover:bg-[#36a783]/30 rounded-xl transition-all hover:scale-105 active:scale-95"
-            title="Sign out"
-          >
-            <LogOut className="w-4 h-4 translate-x-0.5" strokeWidth={2.5} />
-          </button>
         </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }

@@ -8,10 +8,10 @@ import {
 
 export async function create(req: Request, res: Response) {
   try {
-    const { name, crop_type, planting_date, stage, assigned_agent_id } =
+    const { name, crop_type, planting_date, growth_duration_days, stage, assigned_agent_id } =
       req.body;
 
-    if (!name || !crop_type || !planting_date || !stage) {
+    if (!name || !crop_type || !planting_date || !growth_duration_days || !stage) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -19,9 +19,10 @@ export async function create(req: Request, res: Response) {
       name,
       crop_type,
       planting_date,
+      growth_duration_days,
       stage,
       assigned_agent_id: assigned_agent_id || null,
-    });
+    } as any);
 
     return res.status(201).json({
       message: "Created successfully",
@@ -72,16 +73,4 @@ export async function update(req: Request, res: Response) {
     return res.status(500).json({ message: "Unable to update field" });
   }
 }
-export async function deleteField(req: Request, res: Response) {
-  try {
-    const fielid = req.params.id;
-    if (!fielid) {
-      return res.status(404).json({ message: "Field not found" });
-    }
-    const results = await pool.query("");
 
-    return res.json(field);
-  } catch (error) {
-    return res.status(500).json({ message: "Unable to update field" });
-  }
-}

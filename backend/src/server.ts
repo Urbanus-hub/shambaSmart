@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes";
 import fieldRoutes from "./routes/fieldRoutes";
 import updateRoutes from "./routes/updateRoutes";
+import userRoutes from "./routes/userRoutes";
 import pool from "./db/pool";
 dotenv.config();
 const app = express();
@@ -26,6 +27,7 @@ app.get("/api/checkdb", async (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/fields", fieldRoutes);
 app.use("/api/fields", updateRoutes);
+app.use("/api/users", userRoutes);
 
 app.use(
   (

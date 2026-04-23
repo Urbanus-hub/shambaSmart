@@ -1,47 +1,84 @@
 import { useState } from "react";
+import type { FieldStage } from "../types";
 
 interface UpdateFormProps {
-  onSubmit: (note: string) => Promise<void>;
+  onSubmit: (note: string, stage: FieldStage) => Promise<void>;
+  currentStage?: FieldStage;
 }
 
-export function UpdateForm({ onSubmit }: UpdateFormProps) {
+export function UpdateForm({
+  onSubmit,
+  currentStage = "PLANTED",
+}: UpdateFormProps) {
   const [note, setNote] = useState("");
+  const [stage, setStage] = useState<FieldStage>(currentStage);
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!note.trim()) {
-      return;
-    }
+    if (!note.trim()) return;
 
     setSubmitting(true);
-    await onSubmit(note);
-    setNote("");
-    setSubmitting(false);
+    try {
+      await onSubmit(note, stage);
+      setNote("");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
-    >
-      <h3 className="font-display text-xl text-slate-900">Log field update</h3>
-      <p className="mt-2 text-sm text-slate-600">
-        Capture crop health, irrigation checks, pests, or harvest readiness.
-      </p>
-      <textarea
-        value={note}
-        onChange={(event) => setNote(event.target.value)}
-        placeholder="Share observations, pests, irrigation notes..."
-        className="mt-4 min-h-[140px] w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100"
-      />
-      <button
-        type="submit"
-        disabled={submitting}
-        className="mt-5 w-full rounded-full bg-emerald-600 px-4 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-emerald-700 disabled:opacity-60"
-      >
-        {submitting ? "Saving..." : "Save update"}
-      </button>
+    <form onSubmit={handleSubmit} className="card space-y-5">
+      <div>
+        <h3 className="text-lg font-semibold text-slate-900">
+          Log field update
+        </h3>
+        <p className="mt-1 text-sm text-slate-500">
+          Record observations about crop health, irrigation, or pests.
+        </p>
+      </div>
+
+      <div>
+        <label className="label-field">Field Stage</label>
+        <select
+          value={stage}
+          onChange={(e) => setStage(e.target.value as FieldStage)}
+          className="input-field"
+        >
+          <option value="PLANTED">Planted</option>
+          <option value="GROWING">Growing</option>
+          <option value="READY">Ready</option>
+          <option value="HARVESTED">Harvested</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="label-field">Observation Note</label>
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="Share observations, pests, irrigation notes..."
+          rows={4}
+          className="input-field resize-y"
+        />
+      </div>
+
+      <div className="flex items-center justify-end gap-3 pt-2">
+        <button
+          type="button"
+          onClick={() => setNote("")}
+          className="btn-secondary"
+        >
+          Clear
+        </button>
+        <button
+          type="submit"
+          disabled={submitting || !note.trim()}
+          className="btn-primary"
+        >
+          {submitting ? "Saving..." : "Save update"}
+        </button>
+      </div>
     </form>
   );
 }

@@ -20,19 +20,16 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 function readStoredAuth() {
   const token = localStorage.getItem("auth_token");
   const userRaw = localStorage.getItem("auth_user");
-  let user = null;
+  let user: User | null = null;
   try {
     if (userRaw && userRaw !== "undefined") {
       user = JSON.parse(userRaw) as User;
     }
-  } catch (err) {
+  } catch {
     localStorage.removeItem("auth_user");
     localStorage.removeItem("auth_token");
   }
-  return {
-    token,
-    user,
-  };
+  return { token, user };
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -41,31 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(stored.token);
 
   const login = useCallback(async (email: string, password: string) => {
-    let result;
-    if (email === "admin@shamba.io" && password === "password123") {
-      result = {
-        user: {
-          id: "mock-admin",
-          name: "Admin Demo",
-          email,
-          role: "ADMIN" as const,
-        },
-        token: "mock-token",
-      };
-    } else if (email === "agent@shamba.io" && password === "password123") {
-      result = {
-        user: {
-          id: "mock-agent",
-          name: "Agent Demo",
-          email,
-          role: "AGENT" as const,
-        },
-        token: "mock-token",
-      };
-    } else {
-      result = await authService.login(email, password);
-    }
-
+    const result = await authService.login(email, password);
     setUser(result.user);
     setToken(result.token);
     localStorage.setItem("auth_token", result.token);
