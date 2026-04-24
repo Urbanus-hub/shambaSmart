@@ -6,6 +6,7 @@ import fieldRoutes from "./routes/fieldRoutes";
 import updateRoutes from "./routes/updateRoutes";
 import userRoutes from "./routes/userRoutes";
 import pool from "./db/pool";
+import { errorHandler } from "./middleware/errorMiddleware";
 dotenv.config();
 const app = express();
 
@@ -29,17 +30,9 @@ app.use("/api/fields", fieldRoutes);
 app.use("/api/fields", updateRoutes);
 app.use("/api/users", userRoutes);
 
-app.use(
-  (
-    err: Error,
-    _req: express.Request,
-    res: express.Response,
-    _next: express.NextFunction,
-  ) => {
-    console.error(err);
-    res.status(500).json({ message: "Internal server error" });
-  },
-);
+// Global Error Handler
+app.use(errorHandler);
+
 const port = Number(process.env.PORT || 5000);
 
 app.listen(port, () => {
