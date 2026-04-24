@@ -105,6 +105,15 @@ The `expected_harvest_date` is automatically calculated by adding the `growth_du
 
 ---
 
+## 🧠 Assumptions Made
+
+- **Agent Visibility**: Assumed that field agents should only see and update fields specifically assigned to them to maintain focus and data privacy.
+- **Linear Growth Progression**: Assumed a standard progression of crop stages (`PLANTED` → `GROWING` → `READY` → `HARVESTED`), while providing a flexible "Notes" system for non-linear events.
+- **Harvest Risk Threshold**: Assumed a 7-day window for flagging fields as "At Risk" based on the expected harvest date to provide early warnings to coordinators.
+- **Mobile-First Environment**: Assumed the primary interface for field agents would be mobile devices, leading to a focus on responsive, high-contrast UI elements.
+
+---
+
 ## 🗺️ Future Roadmap
 
 If I had more time, I would implement:
